@@ -19,6 +19,7 @@ class Kvx
 
   def initialize(x, attributes: {})
 
+    @header = false
     @attributes = attributes
     h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_to_h}
     @to_h = method(h[x.class.to_s.downcase.to_sym]).call x
