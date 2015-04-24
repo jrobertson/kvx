@@ -20,7 +20,7 @@ class Kvx
   def initialize(x, attributes: {})
 
     @attributes = attributes
-    h = {hash: :passthru, rexle: :hashify}
+    h = {hash: :passthru, rexle: :hashify, string: :parse_to_h}
     @to_h = method(h[x.class.to_s.downcase.to_sym]).call x
 
   end
@@ -40,6 +40,21 @@ class Kvx
 
   private
 
+  def get_attributes(raw_attributes)
+    
+    r1 = /([\w\-:]+\='[^']*)'/
+    r2 = /([\w\-:]+\="[^"]*)"/
+    
+    r =  raw_attributes.scan(/#{r1}|#{r2}/).map(&:compact)\
+                                  .flatten.inject(Attributes.new) do |r, x|
+      attr_name, raw_val = x.split(/=/,2) 
+      val = attr_name != 'class' ? raw_val[1..-1] : raw_val[1..-1].split
+      r.merge(attr_name.to_sym => val)
+    end
+
+    return r
+  end
+  
   def hashify(e)
 
     v = if e.has_elements? then 
@@ -63,16 +78,16 @@ class Kvx
     end
   end
 
-  def parse_to_h(s, header_pattern=%r(^<\?kvx ))
+  def parse_to_h(s, header_pattern=%r(^<\?kvx[\s\?]))
 
     raw_txt, _ = RXFHelper.read(s)
-    
+
     # does the raw_txt contain header information? 
     a = s.strip.lines
-    
+
     txt = if a[0] =~ header_pattern then
       raw_header = a.shift 
-      @attributes.merge! type:  raw_header[/type=["']([^"']+)/,1]
+      @attributes.merge! get_attributes(raw_header)
       @header = true
       a.join
     else

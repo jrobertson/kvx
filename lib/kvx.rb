@@ -20,7 +20,7 @@ class Kvx
   def initialize(x, attributes: {})
 
     @attributes = attributes
-    h = {hash: :passthru, rexle: :hashify, string: :parse_to_h}
+    h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_to_h}
     @to_h = method(h[x.class.to_s.downcase.to_sym]).call x
 
   end
@@ -78,7 +78,7 @@ class Kvx
     end
   end
 
-  def parse_to_h(s, header_pattern=%r(^<\?kvx[\s\?]))
+  def parse_to_h(s, header_pattern: %r(^<\?kvx[\s\?]))
 
     raw_txt, _ = RXFHelper.read(s)
 
@@ -100,6 +100,15 @@ class Kvx
   def passthru(x)
     x
   end
+  
+  def pretty_print(a, indent='')
+    
+    a.map do |x|  
+      (x.is_a?(String) or x.nil?) ? x.to_s : pretty_print(x, indent + '  ')
+    end.join("\n" + indent)
+    
+  end
+    
   
   def scan_to_h(txt)
 
