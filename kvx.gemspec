@@ -1,7 +1,9 @@
 Gem::Specification.new do |s|
   s.name = 'kvx'
-  s.version = '0.1.2'
-  s.summary = 'kvx'
+  s.version = '0.2.0'
+  s.summary = 'Kvx (Keys, Attributes, and XML) makes it convenient to store ' \
+      + 'and retrieve the simplest of data as plain text using a ' \
+      + 'hash-like format or as XML.'
   s.authors = ['James Robertson']
   s.files = Dir['lib/**/*.rb']
   s.add_runtime_dependency('line-tree', '~> 0.5', '>=0.5.0') 

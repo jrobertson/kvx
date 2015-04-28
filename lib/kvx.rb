@@ -20,6 +20,7 @@ class Kvx
   def initialize(x, attributes: {})
 
     @header = false
+    @identifier = 'kvx'
     @attributes = attributes
     h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_to_h}
     @to_h = method(h[x.class.to_s.downcase.to_sym]).call x
@@ -29,6 +30,21 @@ class Kvx
   def parse(t=nil)
     parse_to_h(t || @to_s)
   end        
+  
+  def to_s()
+    
+    header = ''
+    
+    if @header then
+      
+      header = '<?' + @identifier
+      header += ' ' + @attributes.map {|x| "%s='%s'" % x }.join(' ')
+      header += "?>\n\n"
+    end
+    
+    header + scan_to_s(@to_h)
+
+  end    
 
   def to_xml(options={pretty: true})
   
@@ -87,8 +103,17 @@ class Kvx
     a = s.strip.lines
 
     txt = if a[0] =~ header_pattern then
-      raw_header = a.shift 
-      @attributes.merge! get_attributes(raw_header)
+    
+      raw_header = a.shift
+      attr = get_attributes(raw_header)
+      
+      if attr[:created] then
+        attr[:last_modified] = Time.now.to_s
+      else
+        attr[:created] = Time.now.to_s 
+      end
+      
+      @attributes.merge! attr
       @header = true
       a.join
     else
@@ -174,5 +199,18 @@ class Kvx
     end    
 
   end     
+  
+  def scan_to_s(h, indent='')    
+    
+    a = h.inject([]) do |r, x|
+      if x.last.is_a? Hash then
+        r << x.first.to_s + ":\n" + scan_to_s(x.last, '  ')
+      else
+        r << "%s%s: %s" % [indent, *x]
+      end
+    end
+    
+    @to_s = a.join("\n")
+  end  
 
 end
