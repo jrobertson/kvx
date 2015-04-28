@@ -23,13 +23,21 @@ class Kvx
     @identifier = 'kvx'
     @attributes = attributes
     h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_to_h}
-    @to_h = method(h[x.class.to_s.downcase.to_sym]).call x
+    @h = method(h[x.class.to_s.downcase.to_sym]).call x
 
+  end
+    
+  def item()
+    @h
   end
 
   def parse(t=nil)
     parse_to_h(t || @to_s)
   end        
+  
+  def to_h()
+    deep_clone @h
+  end
   
   def to_s()
     
@@ -39,8 +47,9 @@ class Kvx
       
       header = '<?' + @identifier
       header += ' ' + @attributes.map {|x| "%s='%s'" % x }.join(' ')
-      header += "?>\n\n"
+      header += "?>\n"
     end
+    h = @to_h
     
     header + scan_to_s(@to_h)
 
@@ -56,6 +65,20 @@ class Kvx
   end
 
   private
+  
+  def deep_clone(h)
+      
+    h.inject({}) do |r, x|
+
+      h2 = if x.last.is_a? Hash then
+          [x.first, deep_clone(x.last)]
+      else
+        x
+      end
+      r.merge h2[0] => h2[1]
+    end
+    
+  end  
 
   def get_attributes(raw_attributes)
     
