@@ -18,11 +18,11 @@ class Kvx
   attr_reader :to_h
 
   def initialize(x, attributes: {})
-
+    
     @header = false
     @identifier = 'kvx'
     @attributes = attributes
-    h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_to_h}
+    h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_string}
     @h = method(h[x.class.to_s.downcase.to_sym]).call x
 
   end
@@ -30,10 +30,6 @@ class Kvx
   def item()
     @h
   end
-
-  def parse(t=nil)
-    parse_to_h(t || @to_s)
-  end        
   
   def to_h()
     deep_clone @h
@@ -117,6 +113,13 @@ class Kvx
 
     end
   end
+  
+  def parse_string(s)
+    
+    buffer, type = RXFHelper.read(s)
+    type == :xml ? hashify(buffer) : parse_to_h(buffer)
+    
+  end
 
   def parse_to_h(s, header_pattern: %r(^<\?kvx[\s\?]))
 
@@ -147,7 +150,7 @@ class Kvx
   end
 
   def passthru(x)
-    x
+    deep_clone x
   end
   
   def pretty_print(a, indent='')
