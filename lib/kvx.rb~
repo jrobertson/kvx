@@ -22,6 +22,7 @@ class Kvx
     @header = false
     @identifier = 'kvx'
     @summary = {}
+    
     @attributes = attributes
     
     h = {
@@ -56,7 +57,8 @@ class Kvx
     
     if @header or @summary then
       
-      attr = @attributes ? @attributes.map {|x| "%s='%s'" % x }.join(' ') : ''
+      attr = @attributes ? ' ' + @attributes\
+                                       .map {|x| "%s='%s'" % x }.join(' ') : ''
       header = '<?' + @identifier
       header += attr
       header += "?>\n"

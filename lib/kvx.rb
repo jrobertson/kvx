@@ -72,9 +72,14 @@ class Kvx
 
   def to_xml(options={pretty: true})
           
-    summary = [:summary, {}, *make_xml(@summary)]
-    body = [:body, {}, *make_xml(@body)]
-    a = [self.class.to_s.downcase, @attributes, '', summary, body]
+    if @summary.empty? then
+      a = [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
+    else      
+      summary = [:summary, {}, *make_xml(@summary)]
+      body = [:body, {}, *make_xml(@body)]
+      a = [self.class.to_s.downcase, @attributes, '', summary, body]
+    end
+    
     Rexle.new(a).xml(options)
 
   end
