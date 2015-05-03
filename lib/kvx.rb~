@@ -14,48 +14,59 @@ require 'rxfhelper'
 
 class Kvx
 
-  attr_accessor :attributes
+  attr_accessor :attributes, :summary
   attr_reader :to_h
 
   def initialize(x, attributes: {})
-    
+
     @header = false
     @identifier = 'kvx'
+    @summary = {}
     @attributes = attributes
-    h = {hash: :passthru, :'rexle::element' => :hashify, string: :parse_string}
-    @h = method(h[x.class.to_s.downcase.to_sym]).call x
+    
+    h = {
+      hash: :passthru, 
+      :'rexle::element' => :xml_to_h, 
+      string: :parse_string
+    }
+    
+    @body = method(h[x.class.to_s.downcase.to_sym]).call x
 
   end
     
   def item()
-    @h
+    @body
   end
   
+  alias body item
+  
   def to_h()
-    deep_clone @h
+    deep_clone @body
   end
   
   def to_s()
     
     header = ''
     
-    if @header then
+    if @header or @summary then
       
+      attr = @attributes ? @attributes.map {|x| "%s='%s'" % x }.join(' ') : ''
       header = '<?' + @identifier
-      header += ' ' + @attributes.map {|x| "%s='%s'" % x }.join(' ')
+      header += attr
       header += "?>\n"
+      header += scan_to_s @summary
+      header += "\n----------------------------------\n\n"
     end
-    h = @to_h
     
-    header + scan_to_s(@to_h)
+    header + scan_to_s(@body)
 
   end    
 
   def to_xml(options={pretty: true})
-  
-    make_xml(@to_h)
-        
-    a = [self.class.to_s.downcase, @attributes, '', *make_xml(@to_h)]
+          
+    summary = [:summary, {}, *make_xml(@summary)]
+    body = [:body, {}, *make_xml(@body)]
+    a = [self.class.to_s.downcase, @attributes, '', summary, body]
     Rexle.new(a).xml(options)
 
   end
@@ -101,7 +112,7 @@ class Kvx
       e.text
     end
 
-    {e.name => v}
+    {e.name.to_sym => v}
   end  
 
   def make_xml(h)
@@ -117,7 +128,7 @@ class Kvx
   def parse_string(s)
     
     buffer, type = RXFHelper.read(s)
-    type == :xml ? hashify(buffer) : parse_to_h(buffer)
+    type == :xml ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
     
   end
 
@@ -141,7 +152,10 @@ class Kvx
       
       @attributes.merge! attr
       @header = true
-      a.join
+      body, summary = a.join.strip.split(/^----*$/).reverse      
+      @summary = scan_to_h summary
+      
+      body
     else
       raw_txt
     end
@@ -180,7 +194,7 @@ class Kvx
     end
     
 
-    @to_h = a.inject({}) do |r, line|
+    @body = a.inject({}) do |r, line|
            
       s = line.shift
       
@@ -237,6 +251,17 @@ class Kvx
     end
     
     @to_s = a.join("\n")
-  end  
+  end
+  
+  def xml_to_h(node)
+    
+    summary = node.element('summary')
+    if summary then
+      @summary = hashify(summary)[:summary]
+      @body = hashify(node.element('body'))[:body]
+    else
+      @body = hashify node
+    end
+  end
 
 end
