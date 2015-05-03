@@ -41,7 +41,13 @@ class Kvx
   alias body item
   
   def to_h()
-    deep_clone @body
+    
+    if @summary.empty? then
+      deep_clone @body
+    else
+      {summary: deep_clone(@summary), body: deep_clone(@body)}
+    end
+    
   end
   
   def to_s()
@@ -164,7 +170,14 @@ class Kvx
   end
 
   def passthru(x)
-    deep_clone x
+    
+    if x[:summary] and x[:body]
+      @summary = deep_clone x[:summary]
+      deep_clone x[:body]
+    else      
+      deep_clone x
+    end
+    
   end
   
   def pretty_print(a, indent='')
