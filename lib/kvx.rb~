@@ -73,11 +73,24 @@ class Kvx
   def to_xml(options={pretty: true})
           
     if @summary.empty? then
+      
       a = [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
-    else      
-      summary = [:summary, {}, *make_xml(@summary)]
+      
+    else
+      
+      summary = make_xml(@summary)
+      
+      tags_found = summary.assoc(:tags)
+      
+      if tags_found then
+        tags = tags_found.pop
+        tags_found.push *tags.split.map {|x| [:tag,{},x]} 
+      end
+
+      summary = [:summary, {}, *summary]
       body = [:body, {}, *make_xml(@body)]
       a = [self.class.to_s.downcase, @attributes, '', summary, body]
+      
     end
     
     Rexle.new(a).xml(options)
