@@ -51,6 +51,33 @@ class Kvx
     
   end
   
+  def to_doc()
+    
+    if @summary.empty? then
+      
+      a = [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
+      
+    else
+      
+      summary = make_xml(@summary)
+      
+      tags_found = summary.assoc(:tags)
+      
+      if tags_found then
+        tags = tags_found.pop
+        tags_found.push *tags.split.map {|x| [:tag,{},x]} 
+      end
+
+      summary = [:summary, {}, *summary]
+      body = [:body, {}, *make_xml(@body)]
+      a = [self.class.to_s.downcase, @attributes, '', summary, body]
+      
+      Rexle.new(a)
+      
+    end    
+    
+  end
+  
   def to_s()
     
     header = ''
@@ -72,28 +99,8 @@ class Kvx
 
   def to_xml(options={pretty: true})
           
-    if @summary.empty? then
-      
-      a = [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
-      
-    else
-      
-      summary = make_xml(@summary)
-      
-      tags_found = summary.assoc(:tags)
-      
-      if tags_found then
-        tags = tags_found.pop
-        tags_found.push *tags.split.map {|x| [:tag,{},x]} 
-      end
-
-      summary = [:summary, {}, *summary]
-      body = [:body, {}, *make_xml(@body)]
-      a = [self.class.to_s.downcase, @attributes, '', summary, body]
-      
-    end
-    
-    Rexle.new(a).xml(options)
+    doc = self.to_doc
+    doc.xml(options)
 
   end
 
@@ -289,7 +296,19 @@ class Kvx
   def xml_to_h(node)
     
     summary = node.element('summary')
+    
     if summary then
+
+      etags = summary.element 'tags'
+      
+      if etags then
+
+        tags = etags.xpath('tag/text()')
+        etags.delete 'tag'
+        etags.text = tags.join(' ') if tags.any?
+        
+      end
+
       @summary = hashify(summary)[:summary]
       @body = hashify(node.element('body'))[:body]
     else
