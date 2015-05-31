@@ -53,9 +53,9 @@ class Kvx
   
   def to_doc()
     
-    if @summary.empty? then
+    a = if @summary.empty? then
       
-      a = [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
+      [self.class.to_s.downcase, @attributes, '', *make_xml(@body)]      
       
     else
       
@@ -70,11 +70,11 @@ class Kvx
 
       summary = [:summary, {}, *summary]
       body = [:body, {}, *make_xml(@body)]
-      a = [self.class.to_s.downcase, @attributes, '', summary, body]
-      
-      Rexle.new(a)
+      [self.class.to_s.downcase, @attributes, '', summary, body]      
       
     end    
+    
+    Rexle.new a
     
   end
   
