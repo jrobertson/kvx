@@ -161,7 +161,7 @@ class Kvx
   def parse_string(s)
     
     buffer, type = RXFHelper.read(s)
-    type == :xml ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
+    buffer.lstrip =~ /^<\?xml/ ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
     
   end
 

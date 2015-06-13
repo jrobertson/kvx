@@ -272,8 +272,9 @@ class Kvx
         
         value, name = s.split(': ',2).reverse
         name ||= 'description'          
+        v = value =~ /^\{\s*\}$/ ? {} : value.to_s
         
-        r.merge({name.to_sym => value.to_s})
+        r.merge({name.to_sym => v})
       end     
 
     end    
