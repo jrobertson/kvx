@@ -28,7 +28,8 @@ class Kvx
     h = {
       hash: :passthru, 
       :'rexle::element' => :xml_to_h, 
-      string: :parse_string
+      string: :parse_string,
+      rexle: :doc_to_h
     }
     
     @body = method(h[x.class.to_s.downcase.to_sym]).call x
@@ -119,6 +120,10 @@ class Kvx
     end
     
   end  
+  
+  def doc_to_h(doc)
+    xml_to_h(doc.root)
+  end
 
   def get_attributes(raw_attributes)
     
