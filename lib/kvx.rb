@@ -237,18 +237,16 @@ class Kvx
       end
       r
     end
-    
 
     @body = a.inject({}) do |r, line|
            
       s = line.shift
       
-
       if line.join.length > 0 then 
 
-        r2 = if line[0][0][/^\w+: /] then
+        r2 = if line[0][0][/^\w+:/] then
 
-          scan_to_h(line.join("\n"))
+          scan_to_h(line.join("\n  "))
           
         else
 
