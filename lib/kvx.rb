@@ -246,7 +246,8 @@ class Kvx
 
         r2 = if line[0][0][/^\w+:/] then
 
-          scan_to_h(line.join("\n  "))
+          padding = line[0].length < 2 ? "\n" : "\n  "
+          scan_to_h(line.join(padding))
           
         else
 
