@@ -126,7 +126,7 @@ class Kvx
   end
 
   def get_attributes(raw_attributes)
-    
+#     
     r1 = /([\w\-:]+\='[^']*)'/
     r2 = /([\w\-:]+\="[^"]*)"/
     
@@ -247,7 +247,8 @@ class Kvx
         r2 = if line[0][0][/^\w+:/] then
 
           padding = line[0].length < 2 ? "\n" : "\n  "
-          scan_to_h(line.join(padding))
+          
+          scan_to_h(line.map{|x| x.join(padding)}.join("\n"))
           
         else
 
@@ -263,7 +264,6 @@ class Kvx
           r3 = {description: txt2, items: h}
 
           if remaining then
-
             r3.merge!(scan_to_h remaining + "\n ")
           end
           
