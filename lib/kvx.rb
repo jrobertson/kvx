@@ -29,7 +29,8 @@ class Kvx
       hash: :passthru, 
       :'rexle::element' => :xml_to_h, 
       string: :parse_string,
-      rexle: :doc_to_h
+      rexle: :doc_to_h,
+      :"rexle::element::value" => :parse_string
     }
     
     @body = method(h[x.class.to_s.downcase.to_sym]).call x
