@@ -43,6 +43,10 @@ class Kvx
   
   alias body item
   
+  def save(filename)
+    File.write filename, self.to_s
+  end
+  
   def to_h()
     
     if @summary.empty? then
@@ -84,7 +88,7 @@ class Kvx
     
     header = ''
     
-    if @header or @summary then
+    if @header or @summary.any? then
       
       attr = @attributes ? ' ' + @attributes\
                                        .map {|x| "%s='%s'" % x }.join(' ') : ''
