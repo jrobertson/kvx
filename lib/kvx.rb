@@ -4,6 +4,7 @@
 
 require 'line-tree'
 require 'rxfhelper'
+require 'rexle-builder'
 
 ###
 # Kvx does the following:
@@ -159,13 +160,7 @@ class Kvx
   end  
 
   def make_xml(h)
-
-    h.map do |name, x|
-
-      value = x.is_a?(Hash) ? make_xml(x) : x
-      [name, {}, *value]
-
-    end
+    RexleBuilder.new(h).to_a[3..-1]
   end
   
   def parse_string(s)
