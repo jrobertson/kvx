@@ -225,7 +225,7 @@ class Kvx
 
     raw_a = LineTree.new(txt.gsub(/(^-*$)|(#.*)/,'').strip, 
                                               ignore_blank_lines: false).to_a
-    
+    puts 'raw_a: ' + raw_a.inspect
     # if there are any orphan lines which aren't nested underneath a 
     #   label, they will be fixed using the following statement
     
@@ -244,7 +244,7 @@ class Kvx
       
       if line.join.length > 0 then 
 
-        r2 = if line[0][0][/^\w+:/] then
+        r2 = if line[0][0][/^[^:]+:/] then
 
           padding = line[0].length < 2 ? "\n" : "\n  "
           
