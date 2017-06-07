@@ -225,12 +225,12 @@ class Kvx
 
     raw_a = LineTree.new(txt.gsub(/(^-*$)|(#.*)/,'').strip, 
                                               ignore_blank_lines: false).to_a
-    puts 'raw_a: ' + raw_a.inspect
+
     # if there are any orphan lines which aren't nested underneath a 
     #   label, they will be fixed using the following statement
     
-    a = raw_a.chunk {|x| x[0][/^\w+:|.*/]}.inject([]) do |r,y|
-      if r.last and !y.first[/\w+:/] then
+    a = raw_a.chunk {|x| x[0][/^[^:]+:|.*/]}.inject([]) do |r,y|
+      if r.last and !y.first[/[^:]+:/] then
         r.last << y.last[-1]
       else
         r << y.last[-1]
