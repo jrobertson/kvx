@@ -18,13 +18,14 @@ class Kvx
   attr_accessor :attributes, :summary
   attr_reader :to_h
 
-  def initialize(x, attributes: {})
+  def initialize(x, attributes: {}, debug: false)
 
     @header = false
     @identifier = 'kvx'
     @summary = {}
+    @ignore_blank_lines ||= false
     
-    @attributes = attributes
+    @attributes, @debug = attributes, debug
     
     h = {
       hash: :passthru, 
@@ -166,6 +167,7 @@ class Kvx
   def parse_string(s)
     
     buffer, type = RXFHelper.read(s)
+    puts 'buffer: ' + buffer.inspect if @debug
     buffer.lstrip =~ /^<\?xml/ ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
     
   end
@@ -223,9 +225,11 @@ class Kvx
   
   def scan_to_h(txt)
 
+    puts 'inside scan_to_h' if @debug
     raw_a = LineTree.new(txt.gsub(/(^-*$)|(#.*)/,'').strip, 
-                                              ignore_blank_lines: false).to_a
-
+                                              ignore_blank_lines: @ignore_blank_lines).to_a
+    puts 'raw_a: ' + raw_a.inspect if @debug
+    
     # if there are any orphan lines which aren't nested underneath a 
     #   label, they will be fixed using the following statement
     
@@ -241,6 +245,7 @@ class Kvx
     @body = a.inject({}) do |r, line|
            
       s = line.shift
+      puts 's: ' + s.inspect
       
       if line.join.length > 0 then 
 
@@ -281,7 +286,10 @@ class Kvx
         r.merge({name.to_sym => v})
       end     
 
-    end    
+    end
+    
+    puts '@body: ' + @body.inspect
+    @body
 
   end     
   
