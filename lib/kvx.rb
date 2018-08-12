@@ -14,6 +14,7 @@ require 'rexle-builder'
 # * s -> h
 
 class Kvx
+  include RxfHelperModule
 
   attr_accessor :attributes, :summary
   attr_reader :to_h
@@ -46,7 +47,7 @@ class Kvx
   alias body item
   
   def save(filename)
-    File.write filename, self.to_s
+    FileX.write filename, self.to_s
   end
   
   def to_h()
