@@ -14,7 +14,7 @@ require 'rexle-builder'
 # * s -> h
 
 class Kvx
-  include RxfHelperModule
+  include RXFHelperModule
 
   attr_accessor :attributes, :summary
   attr_reader :to_h
