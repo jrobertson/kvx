@@ -15,6 +15,7 @@ require 'rexle-builder'
 
 class Kvx
   include RXFHelperModule
+  using ColouredText
 
   attr_accessor :attributes, :summary
   attr_reader :to_h
@@ -37,6 +38,9 @@ class Kvx
     }
     
     @body = method(h[x.class.to_s.downcase.to_sym]).call x
+    @body.each do |k,v|
+      define_singleton_method(k){v} unless self.methods.include? k
+    end
 
   end
     
@@ -44,7 +48,7 @@ class Kvx
     @body
   end
   
-  alias body item
+  alias body item  
   
   def save(filename)
     FileX.write filename, self.to_s
@@ -91,7 +95,7 @@ class Kvx
     
     header = ''
     
-    if @header or @summary.any? then
+    if @header or (@summary and @summary.any?) then
       
       attr = @attributes ? ' ' + @attributes\
                                        .map {|x| "%s='%s'" % x }.join(' ') : ''
@@ -168,7 +172,7 @@ class Kvx
   def parse_string(s)
     
     buffer, type = RXFHelper.read(s)
-    puts 'buffer: ' + buffer.inspect if @debug
+    puts ('buffer: ' + buffer.inspect).debug if @debug
     buffer.lstrip =~ /^<\?xml/ ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
     
   end
@@ -226,10 +230,10 @@ class Kvx
   
   def scan_to_h(txt)
 
-    puts 'inside scan_to_h' if @debug
+    puts ('inside scan_to_h').info if @debug
     raw_a = LineTree.new(txt.gsub(/(^-*$)|(#.*)/,'').strip, 
                                               ignore_blank_lines: @ignore_blank_lines).to_a
-    puts 'raw_a: ' + raw_a.inspect if @debug
+    puts ('raw_a: ' + raw_a.inspect).debug if @debug
     
     # if there are any orphan lines which aren't nested underneath a 
     #   label, they will be fixed using the following statement
@@ -246,7 +250,7 @@ class Kvx
     @body = a.inject({}) do |r, line|
            
       s = line.shift
-      puts 's: ' + s.inspect
+      puts ('s: ' + s.inspect).debug if @debug
       
       if line.join.length > 0 then 
 
@@ -289,7 +293,7 @@ class Kvx
 
     end
     
-    puts '@body: ' + @body.inspect
+    puts ('@body: ' + @body.inspect).debug if @debug
     @body
 
   end     
