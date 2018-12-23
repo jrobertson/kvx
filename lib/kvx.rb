@@ -6,6 +6,20 @@ require 'line-tree'
 require 'rxfhelper'
 require 'rexle-builder'
 
+module RegGem
+
+  def self.register()
+'
+hkey_gems
+  doctype
+    kvx
+      require kvx
+      class Kvx
+      media_type kvx
+'      
+  end
+end
+
 ###
 # Kvx does the following:
 #
@@ -20,7 +34,7 @@ class Kvx
   attr_accessor :attributes, :summary
   attr_reader :to_h
 
-  def initialize(x, attributes: {}, debug: false)
+  def initialize(x=nil, attributes: {}, debug: false)
 
     @header = false
     @identifier = 'kvx'
@@ -37,11 +51,16 @@ class Kvx
       :"rexle::element::value" => :parse_string
     }
     
-    @body = method(h[x.class.to_s.downcase.to_sym]).call x
-    @body.each do |k,v|
-      define_singleton_method(k){v} unless self.methods.include? k
+    if x then
+      @body = method(h[x.class.to_s.downcase.to_sym]).call x
+      methodize(@body)
     end
 
+  end
+  
+  def import(s)
+    @body = parse_string(s)
+    methodize(@body)
   end
     
   def item()
@@ -174,6 +193,14 @@ class Kvx
     buffer, type = RXFHelper.read(s)
     puts ('buffer: ' + buffer.inspect).debug if @debug
     buffer.lstrip =~ /^<\?xml/ ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
+    
+  end
+  
+  def methodize(h)
+    
+    h.each do |k,v|
+      define_singleton_method(k){v} unless self.methods.include? k
+    end    
     
   end
 
