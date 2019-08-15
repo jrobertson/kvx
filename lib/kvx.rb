@@ -52,7 +52,10 @@ class Kvx
     }
     
     if x then
-      @body = method(h[x.class.to_s.downcase.to_sym]).call x
+      
+      sym = h[x.class.to_s.downcase.to_sym]
+      puts 'sym: ' + sym.inspect if @debug
+      @body = method(sym).call x
       methodize(@body)
     end
 
@@ -185,7 +188,9 @@ class Kvx
   end  
 
   def make_xml(h)
-    RexleBuilder.new(h).to_a[3..-1]
+    
+    puts 'inside make_xml: ' + h.inspect if @debug
+    RexleBuilder.new(h, debug: false).to_a[3..-1]
   end
   
   def parse_string(s)
