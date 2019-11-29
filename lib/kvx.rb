@@ -109,7 +109,9 @@ class Kvx
       
     end    
     
-    Rexle.new a
+    doc = Rexle.new a
+    doc.instructions = @instructions
+    doc
     
   end
   
@@ -197,7 +199,15 @@ class Kvx
     
     buffer, type = RXFHelper.read(s)
     puts ('buffer: ' + buffer.inspect).debug if @debug
-    buffer.lstrip =~ /^<\?xml/ ? xml_to_h(Rexle.new(buffer).root) : parse_to_h(buffer)
+    
+    if buffer.lstrip =~ /^<\?xml/ then
+      doc = Rexle.new(buffer)
+      @instructions = doc.instructions
+      puts '@instructions: ' + @instructions.inspect if @debug
+      xml_to_h(doc.root)
+    else
+      parse_to_h(buffer)
+    end
     
   end
   
@@ -344,6 +354,9 @@ class Kvx
   end
   
   def xml_to_h(node)
+    
+    puts 'node: ' + node.xml.inspect if @debug
+    @attributes = node.attributes.to_h
     
     summary = node.element('summary')
     
