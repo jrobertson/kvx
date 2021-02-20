@@ -104,13 +104,24 @@ class Kvx
       end
 
       summary = [:summary, {}, *summary]
-      body = [:body, {}, *make_xml(@body)]
+      
+      # -- use the nested description Hash object if there are multiple lines
+      h = {}
+      
+      @body.each do |key, value|
+              
+        h[key] = value.is_a?(String) ? value : value[:description]
+        
+      end
+      
+      body = [:body, {}, *make_xml(h)]
       [self.class.to_s.downcase, @attributes, '', summary, body]      
       
     end    
     
+    puts 'a: ' + a.inspect if @debug
     doc = Rexle.new a
-    doc.instructions = @instructions
+    doc.instructions = @instructions || []
     doc
     
   end
@@ -129,8 +140,18 @@ class Kvx
       header += scan_to_s @summary
       header += "\n----------------------------------\n\n"
     end
+
+    # -- use the nested description Hash object if there are multiple lines
+    h = {}
     
-    header + scan_to_s(@body)
+    @body.each do |key, value|
+            
+      h[key] = value.is_a?(String) ? value : \
+          "\n" + value[:description].lines.map {|x| '  ' + x }.join
+      
+    end    
+    
+    header + scan_to_s(h)
 
   end    
 
