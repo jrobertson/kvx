@@ -146,8 +146,17 @@ class Kvx
     
     @body.each do |key, value|
             
-      h[key] = value.is_a?(String) ? value : \
+      h[key] = if value.is_a?(String) then
+      
+        if value.lines.length < 2 then
+          value 
+        else
+          "\n" + value.lines.map {|x| '  ' + x }.join          
+        end
+        
+      else
           "\n" + value[:description].lines.map {|x| '  ' + x }.join
+      end
       
     end    
     
