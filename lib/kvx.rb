@@ -36,7 +36,7 @@ class Kvx
 
   def initialize(x=nil, attributes: {}, debug: false)
 
-    @header = false
+    @header = attributes.any?
     @identifier = 'kvx'
     @summary = {}
     @ignore_blank_lines ||= false
@@ -76,12 +76,23 @@ class Kvx
     FileX.write filename, self.to_s
   end
   
-  def to_h()
+  # flattening is helpful when passing the Hash object to 
+  # RecordX as a new record
+  #
+  def to_h(flatten: false)
     
     if @summary.empty? then
+      
       deep_clone @body
+      
     else
-      {summary: deep_clone(@summary), body: deep_clone(@body)}
+      
+      if flatten then
+        @summary.merge @body
+      else
+        {summary: deep_clone(@summary), body: deep_clone(@body)}
+      end
+      
     end
     
   end
@@ -137,8 +148,12 @@ class Kvx
       header = '<?' + @identifier
       header += attr
       header += "?>\n"
-      header += scan_to_s @summary
-      header += "\n----------------------------------\n\n"
+      
+      if @summary and @summary.any? then
+        header += scan_to_s @summary
+        header += "\n----------------------------------\n\n"
+      end
+      
     end
 
     # -- use the nested description Hash object if there are multiple lines
@@ -169,6 +184,13 @@ class Kvx
     doc = self.to_doc
     doc.xml(options)
 
+  end
+  
+  # used by RecordX to update a KVX record
+  # id is unnecssary because there is only 1 record mapped to RecordX
+  #
+  def update(id=nil, hpair={})
+    @body.merge! hpair
   end
 
   private
@@ -270,7 +292,7 @@ class Kvx
       @attributes.merge! attr
       @header = true
       body, summary = a.join.strip.split(/^----*$/).reverse      
-      @summary = scan_to_h summary
+      @summary = scan_to_h summary if summary
       
       body
     else
@@ -326,7 +348,7 @@ class Kvx
       
       if line.join.length > 0 then 
 
-        r2 = if line[0][0][/^[^:]+:/] then
+        r2 = if line[0][0][/^[^:]+: /] then
 
           padding = line[0].length < 2 ? "\n" : "\n  "
           
