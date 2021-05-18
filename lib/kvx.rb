@@ -325,8 +325,8 @@ class Kvx
   def scan_to_h(txt)
 
     puts ('inside scan_to_h').info if @debug
-    raw_a = LineTree.new(txt.gsub(/(^-*$)|(#.*)/,'').strip, 
-                                              ignore_blank_lines: @ignore_blank_lines).to_a
+    raw_a = LineTree.new(txt.gsub(/(^-*$)|(^ *#.*)/,'').strip, 
+                         ignore_blank_lines: @ignore_blank_lines).to_a
     puts ('raw_a: ' + raw_a.inspect).debug if @debug
     
     # if there are any orphan lines which aren't nested underneath a 
