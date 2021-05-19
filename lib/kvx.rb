@@ -244,7 +244,10 @@ class Kvx
   def make_xml(h)
     
     puts 'inside make_xml: ' + h.inspect if @debug
-    RexleBuilder.new(h, debug: false).to_a[3..-1]
+    h2 = h.clone
+    h2.each {|key,value| value.delete :items if value.is_a?(Hash) }
+
+    RexleBuilder.new(h2, debug: false).to_a[3..-1]
   end
   
   def parse_string(s)
@@ -323,9 +326,27 @@ class Kvx
     
   
   def scan_to_h(txt)
+    
+    txt.gsub!(/^\w+:(?=$)/,'\0 ')
+    puts 'txt:'  + txt.inspect if @debug
+    
+    # auto indent any multiline values which aren't already indented
+    
+    indent = ''
+
+    lines = txt.gsub(/^-+$/m,'').lines.map do |line|
+
+      if not line[/^ *\w+:|^ +/] then
+        indent + '  ' + line
+      else
+        indent = line[/^ +/] || ''
+        line
+      end
+
+    end    
 
     puts ('inside scan_to_h').info if @debug
-    raw_a = LineTree.new(txt.gsub(/(^-*$)|(^ *#.*)/,'').strip, 
+    raw_a = LineTree.new(lines.join.gsub(/(^-*$)|(^ *#.*)/,'').strip, 
                          ignore_blank_lines: @ignore_blank_lines).to_a
     puts ('raw_a: ' + raw_a.inspect).debug if @debug
     
@@ -333,12 +354,17 @@ class Kvx
     #   label, they will be fixed using the following statement
     
     a = raw_a.chunk {|x| x[0][/^[^:]+:|.*/]}.inject([]) do |r,y|
+      
+      puts 'r: ' + r.inspect if @debug
+      
       if r.last and !y.first[/[^:]+:/] then
         r.last << y.last[-1]
       else
         r << y.last[-1]
       end
+      
       r
+      
     end
 
     @body = a.inject({}) do |r, line|
@@ -348,7 +374,7 @@ class Kvx
       
       if line.join.length > 0 then 
 
-        r2 = if line[0][0][/^[^:]+: /] then
+        r2 = if line[0][0][/^[^:]+:/] then
 
           padding = line[0].length < 2 ? "\n" : "\n  "
           
@@ -378,7 +404,7 @@ class Kvx
         
       else
         
-        value, name = s.split(': ',2).reverse
+        value, name = s.split(/: */,2).reverse
         name ||= 'description'          
         v = value =~ /^\{\s*\}$/ ? {} : value.to_s
         
