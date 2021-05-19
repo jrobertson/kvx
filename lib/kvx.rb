@@ -353,13 +353,14 @@ class Kvx
     # if there are any orphan lines which aren't nested underneath a 
     #   label, they will be fixed using the following statement
     
-    a = raw_a.chunk {|x| x[0][/^[^:]+:|.*/]}.inject([]) do |r,y|
+    a = raw_a.chunk {|x| x[0][/^[^:]+:/]}.inject([]) do |r,y|
       
       puts 'r: ' + r.inspect if @debug
       
       if r.last and !y.first[/[^:]+:/] then
         r.last << y.last[-1]
       else
+        puts 'y: ' + y.inspect if @debug
         r << y.last[-1]
       end
       
@@ -372,13 +373,16 @@ class Kvx
       s = line.shift
       puts ('s: ' + s.inspect).debug if @debug
       
-      if line.join.length > 0 then 
-
-        r2 = if line[0][0][/^[^:]+:/] then
-
-          padding = line[0].length < 2 ? "\n" : "\n  "
+      if line.join.length > 0 then
+        
+        puts 'line: ' + line.inspect if @debug
+        
+        padding = line[0].length < 2 ? "\n" : "\n  "        
+        s10 = line.map{|x| x.join(padding)}.join("\n")
+        
+        r2 = if s10[/^[^:]+:[\n ]/] then
           
-          scan_to_h(line.map{|x| x.join(padding)}.join("\n"))
+          scan_to_h(s10)
           
         else
 
