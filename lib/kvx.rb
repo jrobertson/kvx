@@ -336,7 +336,7 @@ class Kvx
 
     lines = txt.gsub(/^-+$/m,'').lines.map do |line|
 
-      if not line[/^ *\w+:|^ +/] then
+      if not line[/^ *[^:]+:|^ +/] then
         indent + '  ' + line
       else
         indent = line[/^ +/] || ''
@@ -344,7 +344,8 @@ class Kvx
       end
 
     end    
-
+    puts ('lines: ' + lines.inspect).debug if @debug
+    
     puts ('inside scan_to_h').info if @debug
     raw_a = LineTree.new(lines.join.gsub(/(^-*$)|(^ *#.*)/,'').strip, 
                          ignore_blank_lines: @ignore_blank_lines).to_a
