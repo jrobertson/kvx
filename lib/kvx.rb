@@ -347,7 +347,7 @@ class Kvx
     puts ('lines: ' + lines.inspect).debug if @debug
     
     puts ('inside scan_to_h').info if @debug
-    raw_a = LineTree.new(lines.join.gsub(/(^-*$)|(^ *#.*)/,'').strip, 
+    raw_a = LineTree.new(lines.join.gsub(/(^-*$)|(?<=\S) +#.*/,'').strip, 
                          ignore_blank_lines: @ignore_blank_lines).to_a
     puts ('raw_a: ' + raw_a.inspect).debug if @debug
     
