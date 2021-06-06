@@ -336,7 +336,7 @@ class Kvx
 
     lines = txt.gsub(/^-+$/m,'').lines.map do |line|
 
-      if not line[/^ *[^:]+:|^ +/] then
+      if not line[/^ *\w+:|^ +/] then
         indent + '  ' + line
       else
         indent = line[/^ +/] || ''
@@ -355,6 +355,7 @@ class Kvx
     #   label, they will be fixed using the following statement
     
     a = raw_a.chunk {|x| x[0][/^[^:]+:/]}.inject([]) do |r,y|
+
       
       puts 'r: ' + r.inspect if @debug
       
@@ -381,7 +382,7 @@ class Kvx
         padding = line[0].length < 2 ? "\n" : "\n  "        
         s10 = line.map{|x| x.join(padding)}.join("\n")
         
-        r2 = if s10[/^[^:]+:[\n ]/] then
+        r2 = if s10[/^ *\w+:[\n ]/] then
           
           scan_to_h(s10)
           
@@ -397,6 +398,7 @@ class Kvx
           end
           
           r3 = {description: txt2, items: h}
+          puts 'remaining: ' + remaining.inspect if @debug
 
           if remaining then
             r3.merge!(scan_to_h remaining + "\n ")
