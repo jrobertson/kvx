@@ -336,7 +336,7 @@ class Kvx
 
     lines = txt.gsub(/^-+$/m,'').lines.map do |line|
 
-      if not line[/^ *\w+:|^ +/] then
+      if not line[/^ *[^:]+:|^ +/] then
         indent + '  ' + line
       else
         indent = line[/^ +/] || ''
@@ -398,7 +398,6 @@ class Kvx
           end
           
           r3 = {description: txt2, items: h}
-          puts 'remaining: ' + remaining.inspect if @debug
 
           if remaining then
             r3.merge!(scan_to_h remaining + "\n ")
