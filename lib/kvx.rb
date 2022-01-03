@@ -325,7 +325,13 @@ s = "
   def methodize(h)
 
     h.each do |k,v|
+
       define_singleton_method(k){v} unless self.methods.include? k
+
+      unless self.methods.include? (k.to_s + '=').to_sym then
+        define_singleton_method((k.to_s + '=').to_sym){|x| h[k] = x}
+      end
+
     end
 
   end

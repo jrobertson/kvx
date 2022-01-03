@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'kvx'
-  s.version = '1.0.0'
+  s.version = '1.0.1'
   s.summary = 'Kvx (Keys, Values, and XML) makes it convenient to store ' \
       + 'and retrieve the simplest of data as plain text using a ' \
       + 'hash-like format or as XML.'
