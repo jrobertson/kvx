@@ -311,11 +311,15 @@ s = "
     buffer, type = RXFHelper.read(s)
     puts ('buffer: ' + buffer.inspect).debug if @debug
 
-    if buffer.lstrip =~ /^<\?xml/ then
-      doc = Rexle.new(buffer)
+    if buffer.force_encoding("UTF-8").lstrip =~ /^<\?xml/ then
+
+      s = buffer.force_encoding("UTF-8")
+      doc = Rexle.new(s)
       @instructions = doc.instructions
       puts '@instructions: ' + @instructions.inspect if @debug
+
       xml_to_h(doc.root)
+
     else
       parse_to_h(buffer)
     end
@@ -338,7 +342,7 @@ s = "
 
   def parse_to_h(s, header_pattern: %r(^<\?kvx[\s\?]))
 
-    raw_txt, _ = RXFHelper.read(s)
+    raw_txt, _ = RXFHelper.read(s).force_encoding("UTF-8")
 
     # does the raw_txt contain header information?
     a = s.strip.lines
