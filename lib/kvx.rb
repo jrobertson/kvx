@@ -3,7 +3,7 @@
 # file: kvx.rb
 
 require 'line-tree'
-require 'rxfhelper'
+require 'rxfreadwrite'
 require 'rexle-builder'
 
 module RegGem
@@ -28,7 +28,7 @@ end
 # * s -> h
 
 class Kvx
-  include RXFHelperModule
+  include RXFReadWriteModule
   using ColouredText
 
   attr_accessor :attributes, :summary
@@ -308,7 +308,7 @@ s = "
 
   def parse_string(s)
 
-    buffer, type = RXFHelper.read(s)
+    buffer, type = RXFReader.read(s)
     puts ('buffer: ' + buffer.inspect).debug if @debug
 
     if buffer.lstrip =~ /^<\?xml/ then
@@ -342,7 +342,7 @@ s = "
 
   def parse_to_h(s, header_pattern: %r(^<\?kvx[\s\?]))
 
-    raw_txt, _ = RXFHelper.read(s)
+    raw_txt, _ = RXFReader.read(s)
 
     # does the raw_txt contain header information?
     a = s.strip.lines
