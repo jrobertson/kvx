@@ -34,11 +34,11 @@ class Kvx
   attr_accessor :attributes, :summary
   attr_reader :to_h
 
-  def initialize(x=nil, attributes: {}, debug: false)
+  def initialize(x=nil, summary: {}, body: {}, attributes: {}, debug: false)
 
     @header = attributes.any?
     @identifier = 'kvx'
-    @summary = {}
+    @summary, @body = summary, body
     @ignore_blank_lines ||= false
 
     @attributes, @debug = attributes, debug
@@ -56,8 +56,10 @@ class Kvx
       sym = h[x.class.to_s.downcase.to_sym]
       puts 'sym: ' + sym.inspect if @debug
       @body = method(sym).call x
-      methodize(@body)
+
     end
+
+    methodize(@body)
 
   end
 
