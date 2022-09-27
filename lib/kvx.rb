@@ -34,7 +34,8 @@ class Kvx
   attr_accessor :attributes, :summary
   attr_reader :to_h
 
-  def initialize(x=nil, summary: {}, body: {}, attributes: {}, debug: false)
+  def initialize(x=nil, summary: {}, body: {}, attributes: {}, 
+                 comment_char: nil, debug: false)
 
     @header = attributes.any?
     @identifier = 'kvx'
@@ -42,6 +43,7 @@ class Kvx
     @ignore_blank_lines ||= false
     
     @attributes, @debug = attributes, debug
+    @comment_char = comment_char
     
     h = {
       hash: :passthru, 
@@ -415,7 +417,13 @@ s = "
     puts ('lines: ' + lines.inspect).debug if @debug
     
     puts ('inside scan_to_h').info if @debug
-    raw_a = LineTree.new(lines.join.gsub(/(^-*$)|(?<=\S) +#.*/,'').strip, 
+    txt = lines.join.gsub(/^-*$/,'')
+    
+    if @comment_char then
+      txt.gsub!(/(?<=\S) +#{@comment_char}.*|#{@comment_char}[^\n]+/,'') 
+    end
+    
+    raw_a = LineTree.new(txt.strip, 
                          ignore_blank_lines: @ignore_blank_lines).to_a
     puts ('raw_a: ' + raw_a.inspect).debug if @debug
     
